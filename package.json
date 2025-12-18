@@ -1,0 +1,22 @@
+{
+  "name": "watnex",
+  "version": "1.0.0",
+  "description": "Backend of the Watnex App",
+  "main": "server.js",
+  "type": "module",
+  "scripts": {
+    "dev": "nodemon server",
+    "start": "node server"
+  },
+  "author": "Freddy Zion",
+  "license": "MIT",
+  "dependencies": {
+    "dotenv": "^17.2.3",
+    "express": "^5.2.1",
+    "jsonwebtoken": "^9.0.3",
+    "mongoose": "^9.0.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.11"
+  }
+}
