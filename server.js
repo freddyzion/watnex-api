@@ -3,13 +3,10 @@ import app from './src/app.js';
 import { config } from 'dotenv';
 
 config();
-
-const PORT = process.env.PORT;
-
 connectDB();
 
-app.listen(PORT, () => {
-  console.log(`Running on port ${PORT}`);
+app.listen(process.env.PORT, () => {
+  console.log(`Running on port ${process.env.PORT}`);
 });
 
 // Server error handler | Graceful shutdown
@@ -21,13 +18,11 @@ process.on('unhandledRejection', (error) => {
     process.exit(1);
   });
 });
-
 process.on('uncaughtException', async (error) => {
   console.error("Uncaught Exception", error);
   await disconnectDB();
   process.exit(1);
 });
-
 process.on('SIGTERM', async () => {
   console.log("SIGTERM received, shutting down gracefully...");
   server.close(async () => {

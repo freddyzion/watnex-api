@@ -1,13 +1,53 @@
+import bcrypt from 'bcryptjs';
+import User from '../models/user.model.js';
+
 const register = async (req, res) => {
   const { name, email, password } = req.body;
-  
-  // Validate name
   const nameRegex = /^[a-zA-Z. ]+$/;
+  const emailRegex = /^[a-z0-9!#\( %&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!# \)%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$/i;
+  const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#%])[A-Za-z\d!@#%]{8,}$/;
+  
+  
   if(!nameRegex.test(name)) return res.status(400).send("Name is not valid");
+  if(!emailRegex.test(email)) return res.status(400).send('Invalid email');
+  if(!passwordRegex.test(password)) return res.status(400).send('Invalid password');
   
-  // Validate email
-  
-  // Validate password
+  try {
+    const userExists = await User.findOne({ email: email });
+    if(userExists) return res.status(400).json({ msg: "Email already exists" });
+    
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
+    
+    const user = await User.create({
+      name: name,
+      email: email,
+      password: hashedPassword,
+    });
+    res.status(201).json(user);
+  } catch (error) {
+    res.sendStatus(500);
+    if(process.env.NODE_ENV === "development") {
+      console.log(error);
+    }
+  }
 };
 
-export { register };
+const login = async (req, res) => {
+  const { email, password } = req.body;
+  try {
+    const user = await User.findOne({ email: email });
+    if(!user) return res.status(401).json({ msg: "Invalid email or password" });
+    
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    if(!isPasswordValid) return res.status(401).json({ msg: "Invalid email or password" });
+    
+  } catch (error) {
+    res.sendStatus(500);
+    if(process.env.NODE_ENV === "development") {
+      console.log(error);
+    }
+  }
+};
+
+export { register, login };
